@@ -1,0 +1,2 @@
+
+-DCATKIN_DEVEL_PREFIX=/home/manthan/tctd_ws/src/TCTD/devel -DCMAKE_INSTALL_PREFIX=/home/manthan/tctd_ws/src/TCTD/install -G Unix Makefiles
