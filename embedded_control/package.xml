@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>Embedded_Control</name>
+  <name>embedded_control</name>
   <version>0.0.0</version>
-  <description>The Embedded_Control package</description>
+  <description>The embedded_control package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="yash@todo.todo">yash</maintainer>
+  <maintainer email="manthan@todo.todo">manthan</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/Embedded_Control</url> -->
+  <!-- <url type="website">http://wiki.ros.org/embedded_control</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -52,15 +52,15 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
-  <build_depend>stdmsgs</build_depend>
+  <build_depend>std_msgs</build_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
-  <build_export_depend>stdmsgs</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
-  <exec_depend>stdmsgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
