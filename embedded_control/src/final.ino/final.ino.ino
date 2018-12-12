@@ -3,7 +3,6 @@
 #include <std_msgs/Int64.h>
 #include <Servo.h>
 #include <Encoder.h>
-
 #include <embedded_control/sensor_data.h>
 
 #define sharp_sensor 1
@@ -21,9 +20,14 @@
 #define L_encoder_2 13
 #define R_encoder_1 14
 #define R_encoder_2 15
+#define Left_DIR 45
+#define Right_DIR 31
+#define Left_BRK 39
+#define Right_BRK 35
 #define k 500
-#define left_PWM 9
-#define right_PWM 10
+#define left_PWM 6
+#define right_PWM 9
+
 Servo myservo;  // create servo object to control a servo
 long int left_position;
 long int right_position;
@@ -100,30 +104,51 @@ void PitchStop()
   digitalWrite (PitchUp_pin,LOW);
   digitalWrite (PitchDown_pin,LOW);
 }
-void motor_linear (int speed )
-{ int pwm = k *speed  ;   ///idhar scalling factor lagana hain 
-  if (speed>0)
+
+void Forward(int pwm)
 {
-  digitalWrite(motor_left_F,HIGH);
-  digitalWrite(motor_right_F,HIGH);
-  digitalWrite(motor_left_B,LOW);
-  digitalWrite(motor_right_B,LOW);
-
-  analogWrite (left_PWM ,pwm);
-  analogWrite(right_PWM,pwm); 
-  delay (20);
+  digitalWrite(Left_DIR,LOW);
+  digitalWrite(Right_DIR,LOW);
+  analogWrite(left_PWM,pwm);
+  analogWrite(right_PWM,pwm);
 }
-else
- {
-   digitalWrite(motor_left_B,HIGH);
-  digitalWrite(motor_right_B,HIGH);
-  digitalWrite(motor_left_F,LOW);
-  digitalWrite(motor_right_F,LOW);
 
-  analogWrite (left_PWM ,pwm);
-  analogWrite(right_PWM,pwm); 
-  delay (20);
- }
+void Backward(int pwm)
+{
+  digitalWrite(Left_DIR,HIGH);
+  digitalWrite(Right_DIR,HIGH);
+  analogWrite(left_PWM,pwm);
+  analogWrite(right_PWM,pwm);
+}
+
+void Left(int pwm)
+{
+  digitalWrite(Left_DIR,LOW);
+  digitalWrite(Right_DIR,HIGH);
+  analogWrite(left_PWM,pwm);
+  analogWrite(right_PWM,pwm);
+}
+
+void Right(int pwm)
+{
+  digitalWrite(Left_DIR,HIGH);
+  digitalWrite(Right_DIR,LOW);
+  analogWrite(left_PWM,pwm);
+  analogWrite(right_PWM,pwm);
+}
+
+void halt()
+{
+  digitalWrite(Left_BRK,HIGH);
+  digitalWrite(Right_BRK,HIGH);
+}
+
+
+void motor_linear (int speed )
+{ 
+
+  int pwm = k *speed  ;   ///idhar scalling factor lagana hain 
+
 }
 
 void loop()
