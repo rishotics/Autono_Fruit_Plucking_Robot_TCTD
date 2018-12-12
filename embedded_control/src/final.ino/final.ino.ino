@@ -1,19 +1,35 @@
 
 #include <ros.h>
+#include <std_msgs/Int64.h>
 #include <Servo.h>
 #include <Encoder.h>
 
+#include <embedded_control/sensor_data.h>
 
-#define sharp_sensor
-#define servo_pin 
-#define PitchUp_pin 
-#define PitchDown_pin 
-#define ExtendFor_pin 
-#define ExtendBack_pin
+#define sharp_sensor 1
+#define servo_pin 2
+#define PitchUp_pin 3 
+#define PitchDown_pin 4 
+#define ExtendFor_pin 5
+#define ExtendBack_pin 6
+#define pressure_pin 7 
+#define motor_left_F 8
+#define motor_right_F 9
+#define motor_left_B 10
+#define motor_right_B 11
+#define L_encoder_1 12
+#define L_encoder_2 13
+#define R_encoder_1 14
+#define R_encoder_2 15
+#define k 500
 
 Servo myservo;  // create servo object to control a servo
-long int left_position
-long int right_position
+long int left_position;
+long int right_position;
+
+ros::NodeHandle nh;
+embedded_control::sensor_data pub_msg;
+ros::Publisher arduino_pub("feedback_data", &pub_msg);
 
 void setup() 
 {
@@ -23,15 +39,25 @@ void setup()
   pinMode(PitchDown_pin,OUTPUT);
   pinMode(ExtendFor_pin,OUTPUT);
   pinMode(ExtendBack_pin,OUTPUT);
+  pinMode (motor_left_F,OUTPUT);
+  pinMode (motor_left_B,OUTPUT);
+  pinMode (motor_right_B,OUTPUT);
+  pinMode (motor_right_F,OUTPUT);
   
   myservo.attach(servo_pin);  // attaches the servo on pin 9 to the servo object 
   Encoder knobLeft(L_encoder_1,L_encoder_2);     // initializing the left encoder intrrupt pins
   Encoder knobRight(R_encoder_1,R_encoder_2);  // initializing the right encoder interrupt pins
 
-  ros::NodeHandle nh;
+  nh.initNode();
+  nh.advertise(arduino_pub);
+  
   
 }
-
+int pressure ()
+{
+  int val = analogRead(pressure_pin);
+  return val*k;
+}
 int sharp() 
   {
   float volts = analogRead(sharp_sensor)*0.0048828125;  // value from sensor * (5/1024)
@@ -71,6 +97,42 @@ void PitchStop()
   digitalWrite (PitchUp_pin,LOW);
   digitalWrite (PitchDown_pin,LOW);
 }
+void motor_linear (int speed )
+{ int pwm = k *speed     ///idhar scalling factor lagana hain 
+  if (speed>0)
+{
+  digitalWrite(motor_left_F,HIGH);
+  digitalWrite(motor_right_F,HIGH);
+  digitalWrite(motor_left_B,LOW);
+  digitalWrite(motor_right_B,LOW);
 
+  analogWrite (left_PWM ,pwm);
+  analogWrite(right_pwm,pwm); 
+  delay (20);
+}
+else
+ {
+   digitalWrite(motor_left_B,HIGH);
+  digitalWrite(motor_right_B,HIGH);
+  digitalWrite(motor_left_F,LOW);
+  digitalWrite(motor_right_F,LOW);
 
+  analogWrite (left_PWM ,pwm);
+  analogWrite(right_pwm,pwm); 
+  delay (20);
+ }
+}
+
+void loop()
+{
+  pub_msg.sharp_ir = sharp();
+  pub_msg.L_encoder = left_position;
+  pub_msg.R_encoder = right_position;
+  pub_msg.servo_angle = servo_move(angle,curr_angle);
+  pub_msg.pressure = pressure ();
+  
+  arduino_pub.publish( &pub_msg );
+  nh.spinOnce();
+  delay(50); 
+}
 
