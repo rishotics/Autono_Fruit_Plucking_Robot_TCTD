@@ -29,19 +29,72 @@
 #define right_PWM 9
 
 Servo myservo;  // create servo object to control a servo
+Encoder knobLeft(2, 7);
+Encoder knobRight(3,5);
+
 long int left_position;
 long int right_position;
 int angle , curr_angle; //// yeh wala bas check karne ke liye hain
+
 ros::NodeHandle nh;
 embedded_control::sensor_data pub_msg;
 
+void messageCb( const geometry_msgs::Twist& vel_msg){
 
+  int left_pwm,right_pwm;
+  
+  if (vel_msg.linear.x<0 && vel_msg.linear.y<0)
+  {
+  left_pwm = -(vel_msg.linear.x);
+  right_pwm = -(vel_msg.linear.y);
+  Backward(left_pwm,right_pwm);
+  }
+  
+  if (vel_msg.linear.x>0 && vel_msg.linear.y>0)
+  {
+  left_pwm = (vel_msg.linear.x);
+  right_pwm = (vel_msg.linear.y);
+  Backward(left_pwm,right_pwm);
+  }
 
-ros::Publisher arduino_pub("/feedback_data", &pub_msg);
+  if (vel_msg.linear.x<0 && vel_msg.linear.y>0)
+  {
+  left_pwm = -(vel_msg.linear.x);
+  right_pwm = (vel_msg.linear.y);
+  Left(left_pwm,right_pwm);
+  }
+  
+  if (vel_msg.linear.x>0 && vel_msg.linear.y<0)
+  {
+  left_pwm = (vel_msg.linear.x);
+  right_pwm = -(vel_msg.linear.y);
+  Right(left_pwm,right_pwm);
+  }
 
+  myservo.write (vel_msg.linear.z);
+  if  (vel_msg.angular.x == 1)
+   {  PitchUp();
+    }
+   if  (vel_msg.angular.x == 0)
+   {  PitchStop();
+    }
+   if (vel_msg.angular.x == -1)
+   { PitchDown();
+    }
+      if  (vel_msg.angular.y == 1)
+   {  ExtenderForward();
+    }
+   if  (vel_msg.angular.y == 0)
+   {  ExtenderHalt();
+    }
+   if (vel_msg.angular.y == -1)
+   { ExtenderBack();
+    }
+   
+}
 
-Encoder knobLeft(2, 7);
-Encoder knobRight(3,5);
+ros::Publisher arduino_pub("feedback_data", &pub_msg);
+ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel_joy", &messageCb );
 
 
 void setup() 
@@ -57,31 +110,17 @@ void setup()
   pinMode (Left_BRK,OUTPUT);
   pinMode (Right_BRK,OUTPUT);
   
-  
   myservo.attach(servo_pin);  // attaches the servo on pin 9 to the servo object 
   Encoder knobLeft(L_encoder_1,L_encoder_2);     // initializing the left encoder intrrupt pins
   Encoder knobRight(R_encoder_1,R_encoder_2);  // initializing the right encoder interrupt pins
 
   nh.initNode();
+  nh.subscribe(sub);
   nh.advertise(arduino_pub);
-
+  
+  
   
 }
-
-
-void joycallback( const geometry_msgs::Twist& vel)
-{
-  
-if(vel.angular.y==1)
-{
-  halt();
-  return;
-}
-    
-
-  
-}
-
 int pressure ()
 {
   int val = analogRead(pressure_pin);
@@ -127,7 +166,23 @@ void PitchStop()
   digitalWrite (PitchUp_pin,LOW);
   digitalWrite (PitchDown_pin,LOW);
 }
+void ExtenderForward ()
+{
+  digitalWrite (ExtendFor_pin,HIGH);
+  digitalWrite (ExtendBack_pin,LOW);
+}
 
+void ExtenderBack ()
+{
+  digitalWrite (ExtendFor_pin,LOW);
+  digitalWrite (ExtendBack_pin,HIGH);
+}
+
+void ExtenderHalt()
+{
+  digitalWrite (ExtendFor_pin,LOW);
+  digitalWrite (ExtendBack_pin,LOW);
+}
 void Forward(int left_pwm,int right_pwm)
 {
   digitalWrite(Left_DIR,LOW);
@@ -160,7 +215,6 @@ void Right(int left_pwm,int right_pwm)
   analogWrite(right_PWM,right_pwm);
 }
 
-
 void halt()
 {
   digitalWrite(Left_BRK,HIGH);
@@ -177,6 +231,7 @@ void motor_linear (int speed )
 
 void loop()
 {
+  
   pub_msg.sharp_ir = sharp();
   pub_msg.L_encoder = left_position;
   pub_msg.R_encoder = right_position;
@@ -185,6 +240,6 @@ void loop()
   arduino_pub.publish( &pub_msg );
   
   nh.spinOnce();
-  delay(50); 
+  delay(10); 
 }
 
