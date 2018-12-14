@@ -6,6 +6,7 @@
 #include <Encoder.h>
 #include <embedded_control/sensor_data.h>
 
+
 #define sharp_sensor A0
 #define servo_gripper 10
 #define servo_pin 11
@@ -16,8 +17,8 @@
 #define ExtendBack_pin 33
 #define pressure_pin A1 
 
-#define L_encoder_1 2
-#define L_encoder_2 7
+#define L_encoder_1 7
+#define L_encoder_2 2
 #define R_encoder_1 3
 #define R_encoder_2 5
 #define Left_DIR 35
@@ -29,11 +30,12 @@
 #define right_PWM 9
 
 Servo myservo;  // create servo object to control a servo
-Encoder knobLeft(2, 7);
-Encoder knobRight(3,5);
+Encoder knobLeft(L_encoder_1,L_encoder_2);
+Encoder knobRight(R_encoder_1,R_encoder_2);
 
 long int left_position;
 long int right_position;
+int servo_test;
 int angle , curr_angle; //// yeh wala bas check karne ke liye hain
 
 ros::NodeHandle nh;
@@ -43,7 +45,7 @@ void messageCb( const geometry_msgs::Twist& vel_msg){
 
   int left_pwm,right_pwm;
   
-  if (vel_msg.linear.x<0 && vel_msg.linear.y<0)
+  if (vel_msg.linear.x<=0 && vel_msg.linear.y<=0)
   {
   left_pwm = -(vel_msg.linear.x);
   right_pwm = -(vel_msg.linear.y);
@@ -54,7 +56,7 @@ void messageCb( const geometry_msgs::Twist& vel_msg){
   {
   left_pwm = (vel_msg.linear.x);
   right_pwm = (vel_msg.linear.y);
-  Backward(left_pwm,right_pwm);
+  Forward(left_pwm,right_pwm);
   }
 
   if (vel_msg.linear.x<0 && vel_msg.linear.y>0)
@@ -72,6 +74,8 @@ void messageCb( const geometry_msgs::Twist& vel_msg){
   }
 
   myservo.write (vel_msg.linear.z);
+  servo_test = vel_msg.linear.z;
+  
   if  (vel_msg.angular.x == 1)
    {  PitchUp();
     }
@@ -111,8 +115,9 @@ void setup()
   pinMode (Right_BRK,OUTPUT);
   
   myservo.attach(servo_pin);  // attaches the servo on pin 9 to the servo object 
-  Encoder knobLeft(L_encoder_1,L_encoder_2);     // initializing the left encoder intrrupt pins
-  Encoder knobRight(R_encoder_1,R_encoder_2);  // initializing the right encoder interrupt pins
+  myservo.write(90);
+ // Encoder knobLeft(L_encoder_1,L_encoder_2);     // initializing the left encoder intrrupt pins
+  //Encoder knobRight(R_encoder_1,R_encoder_2);  // initializing the right encoder interrupt pins
 
   nh.initNode();
   nh.subscribe(sub);
@@ -146,7 +151,7 @@ return curr_angle;
 void read_encoder()
 {
   right_position = knobRight.read();
-  left_position = knobRight.read();
+  left_position = knobLeft.read();
 }
 
 void PitchUp ()
@@ -185,21 +190,13 @@ void ExtenderHalt()
 }
 void Forward(int left_pwm,int right_pwm)
 {
-  digitalWrite(Left_DIR,LOW);
+  digitalWrite(Left_DIR,HIGH);
   digitalWrite(Right_DIR,LOW);
   analogWrite(left_PWM,left_pwm);
   analogWrite(right_PWM,right_pwm);
 }
 
 void Backward(int left_pwm,int right_pwm)
-{
-  digitalWrite(Left_DIR,HIGH);
-  digitalWrite(Right_DIR,HIGH);
-  analogWrite(left_PWM,left_pwm);
-  analogWrite(right_PWM,right_pwm);
-}
-
-void Left(int left_pwm,int right_pwm)
 {
   digitalWrite(Left_DIR,LOW);
   digitalWrite(Right_DIR,HIGH);
@@ -210,6 +207,14 @@ void Left(int left_pwm,int right_pwm)
 void Right(int left_pwm,int right_pwm)
 {
   digitalWrite(Left_DIR,HIGH);
+  digitalWrite(Right_DIR,HIGH);
+  analogWrite(left_PWM,left_pwm);
+  analogWrite(right_PWM,right_pwm);
+}
+
+void Left(int left_pwm,int right_pwm)
+{
+  digitalWrite(Left_DIR,LOW);
   digitalWrite(Right_DIR,LOW);
   analogWrite(left_PWM,left_pwm);
   analogWrite(right_PWM,right_pwm);
@@ -231,15 +236,16 @@ void motor_linear (int speed )
 
 void loop()
 {
-  
   pub_msg.sharp_ir = sharp();
-  pub_msg.L_encoder = left_position;
-  pub_msg.R_encoder = right_position;
-  pub_msg.servo_angle = servo_move(angle,curr_angle);
+  pub_msg.L_encoder = -knobLeft.read();
+  pub_msg.R_encoder = knobRight.read();
+  //pub_msg.servo_angle = servo_move(angle,curr_angle);
+  pub_msg.servo_angle = servo_test;
   pub_msg.pressure = pressure ();
   arduino_pub.publish( &pub_msg );
   
   nh.spinOnce();
-  delay(10); 
+//  delay(20); 
+
 }
 

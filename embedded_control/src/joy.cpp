@@ -29,8 +29,7 @@ geometry_msgs::Twist out_msg1;
 
 int a =0;
 int flag = 0;
-int flag1 = 0;
-int flag2 = 0;
+
 int vl=0;
 int vr=0;
 int v =0;
@@ -55,7 +54,7 @@ int main(int argc,char **argv)
 	vel_msg.linear.x=0;
 	z=0;
 	vel_msg.linear.y=0;
-	vel_msg.linear.z=90;
+	out_msg1.linear.z=90;
 	out_msg1.angular.x=0;
 	out_msg1.angular.y=0;
 	
@@ -119,9 +118,9 @@ void controller_callback(const sensor_msgs::Joy::ConstPtr& msg)
     if (msg->axes[2] == -1 )
      	out_msg1.angular.z = -1 - out_msg1.angular.z;   // yeh wla gripper ka hain  
 
-	if((msg->buttons[9]==1)&& flag == 0)
+	if(msg->axes[5]== -1)
 	{
-	flag=1;
+	
 	//estop
 	// (vel_msg.angular.y)=1;
 	vel_msg.linear.y=0;
@@ -130,24 +129,26 @@ void controller_callback(const sensor_msgs::Joy::ConstPtr& msg)
 	
 	out_msg1.angular.x=0;
 	out_msg1.angular.y=0;
-	
-	ROS_INFO("Emergency Stop");
-	}
-	
-	else if((msg->buttons[10]==1) && flag == 1)
-	{
-	//estop release
-	flag = 0;
-	vel_msg.linear.y=0;
+		vel_msg.linear.y=0;
 	z=0;
 	vel_msg.linear.x=0;
-
-	
 	out_msg1.angular.x=0;
 	out_msg1.angular.y=0;
-	ROS_INFO("EStop Release ");
+	ROS_INFO("STOP ");
+
 	}
 	
+	// else if((msg->buttons[10]==1) && flag == 1)
+	// {
+	//                                                 //estop release
+	// flag = 0;
+	// vel_msg.linear.y=0;
+	// z=0;
+	// vel_msg.linear.x=0;
+	// out_msg1.angular.x=0;
+	// out_msg1.angular.y=0;
+	// ROS_INFO("EStop Release ");
+	// }
 	v = vel_msg.linear.x;
  	omega = z;
 
@@ -157,6 +158,7 @@ void controller_callback(const sensor_msgs::Joy::ConstPtr& msg)
   	// out_msg1.angular.y = vel_msg.angular.y;		// variable to check for estop
   	out_msg1.linear.y = vr*60/(2*3.1415*30*r);  // rpm = 30
   	out_msg1.linear.x = vl*60/(2*3.1415*30*r);
+  
 
 	//controller_pub.publish(vel_msg);
 
