@@ -41,7 +41,8 @@ add_executable(joy_publisher src/joy.cpp)
 target_link_libraries(joy_publisher ${catkin_LIBRARIES})
 add_dependencies(joy_publisher joy_publisher_generate_messages_cpp)
 
-#add_executable(convert src/convert.cpp)
-#target_link_libraries(convert ${catkin_LIBRARIES})
-#add_dependencies(convert generate_messages_cpp)
+add_executable(converter src/newjoy.cpp)
+target_link_libraries(converter ${catkin_LIBRARIES})
+add_dependencies(converter generate_messages_cpp)
+
 

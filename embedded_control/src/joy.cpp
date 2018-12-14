@@ -46,7 +46,7 @@ int main(int argc,char **argv)
 
 	
 	controller_pub = n.advertise<geometry_msgs::Twist>("cmd_vel_joy",1000);
-	controller_sub = n.subscribe("/joy",1000,controller_callback);
+	controller_sub = n.subscribe("/new_joy",1000,controller_callback);
 	
 
 	ros::Rate loop_rate(10.0);
