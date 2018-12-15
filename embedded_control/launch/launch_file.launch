@@ -1,0 +1,7 @@
+<launch>
+
+<node pkg="embedded_control" type="joy_publisher" name="joy_publisher" respawn="true" output="screen" />
+<node pkg="embedded_control" type="converter" name="converter" respawn="true" output="screen" />
+
+
+</launch>

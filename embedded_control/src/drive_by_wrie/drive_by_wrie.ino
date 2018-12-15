@@ -8,7 +8,7 @@
 
 
 #define sharp_sensor A0
-#define servo_gripper 10
+#define servo_gripper 12
 #define servo_pin 11
 #define servo_seeding 6
 #define PitchUp_pin 27
@@ -30,6 +30,7 @@
 #define right_PWM 9
 
 Servo myservo;  // create servo object to control a servo
+Servo grip ;
 Encoder knobLeft(L_encoder_1,L_encoder_2);
 Encoder knobRight(R_encoder_1,R_encoder_2);
 
@@ -74,6 +75,8 @@ void messageCb( const geometry_msgs::Twist& vel_msg){
   }
 
   myservo.write (vel_msg.linear.z);
+  delay (50);
+  
   servo_test = vel_msg.linear.z;
   
   if  (vel_msg.angular.x == 1)
@@ -94,7 +97,14 @@ void messageCb( const geometry_msgs::Twist& vel_msg){
    if (vel_msg.angular.y == -1)
    { ExtenderBack();
     }
-   
+    if (vel_msg.angular.z == -1)
+    {
+      gripper_close ();
+    }
+       if (vel_msg.angular.z == 0)
+    {
+      gripper_open();
+    }
 }
 
 ros::Publisher arduino_pub("feedback_data", &pub_msg);
@@ -114,8 +124,10 @@ void setup()
   pinMode (Left_BRK,OUTPUT);
   pinMode (Right_BRK,OUTPUT);
   
-  myservo.attach(servo_pin);  // attaches the servo on pin 9 to the servo object 
+  myservo.attach(servo_pin); // attaches the servo on pin 9 to the servo object 
   myservo.write(90);
+  grip.attach(servo_gripper);
+  grip.write (135);
  // Encoder knobLeft(L_encoder_1,L_encoder_2);     // initializing the left encoder intrrupt pins
   //Encoder knobRight(R_encoder_1,R_encoder_2);  // initializing the right encoder interrupt pins
 
@@ -125,6 +137,16 @@ void setup()
   
   
   
+}
+void gripper_close  ()
+{
+   grip.write (95);
+   delay(40);
+}
+void gripper_open  ()
+{
+   grip.write (135);
+   delay (40);
 }
 int pressure ()
 {

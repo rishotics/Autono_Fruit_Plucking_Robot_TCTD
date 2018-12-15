@@ -50,7 +50,7 @@ for  (i=0;i<=7;++i)
  	  }
    }
     msg1 = *(msg);
-    ROS_INFO ("Check");
+    // ROS_INFO ("Check");
   if (flag == 1 )
   {
     converter_pub.publish(msg1);
