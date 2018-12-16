@@ -31,6 +31,7 @@
 
 Servo myservo;  // create servo object to control a servo
 Servo grip ;
+Servo seed :
 Encoder knobLeft(L_encoder_1,L_encoder_2);
 Encoder knobRight(R_encoder_1,R_encoder_2);
 
@@ -128,6 +129,8 @@ void setup()
   myservo.write(90);
   grip.attach(servo_gripper);
   grip.write (135);
+  seed.attach (servo_seeding);
+  seed.write(0);
  // Encoder knobLeft(L_encoder_1,L_encoder_2);     // initializing the left encoder intrrupt pins
   //Encoder knobRight(R_encoder_1,R_encoder_2);  // initializing the right encoder interrupt pins
 
@@ -140,7 +143,7 @@ void setup()
 }
 void gripper_close  ()
 {
-   grip.write (95);
+   grip.write (85);    //idhar threshold karna hain for fruits 
    delay(40);
 }
 void gripper_open  ()
@@ -151,7 +154,7 @@ void gripper_open  ()
 int pressure ()
 {
   int val = analogRead(pressure_pin);
-  return val*k;
+  return val;
 }
 int sharp() 
   {
@@ -258,16 +261,26 @@ void motor_linear (int speed )
 
 void loop()
 {
-  pub_msg.sharp_ir = sharp();
-  pub_msg.L_encoder = -knobLeft.read();
-  pub_msg.R_encoder = knobRight.read();
-  //pub_msg.servo_angle = servo_move(angle,curr_angle);
-  pub_msg.servo_angle = servo_test;
-  pub_msg.pressure = pressure ();
-  arduino_pub.publish( &pub_msg );
-  
-  nh.spinOnce();
-//  delay(20); 
+//  pub_msg.sharp_ir = sharp();
+//  pub_msg.L_encoder = -knobLeft.read();
+//  pub_msg.R_encoder = knobRight.read();
+//  //pub_msg.servo_angle = servo_move(angle,curr_angle);
+//  pub_msg.servo_angle = servo_test;
+//  pub_msg.pressure = pressure ();
+//  arduino_pub.publish( &pub_msg );
+//  
+//  nh.spinOnce();
+////  delay(20); 
+int pos ;
+for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
 
 }
 
