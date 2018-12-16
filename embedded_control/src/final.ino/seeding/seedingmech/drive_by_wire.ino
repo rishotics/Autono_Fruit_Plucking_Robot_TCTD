@@ -31,7 +31,7 @@
 
 Servo myservo;  // create servo object to control a servo
 Servo grip ;
-Servo seed :
+Servo seed ;
 Encoder knobLeft(L_encoder_1,L_encoder_2);
 Encoder knobRight(R_encoder_1,R_encoder_2);
 
@@ -261,26 +261,26 @@ void motor_linear (int speed )
 
 void loop()
 {
-//  pub_msg.sharp_ir = sharp();
-//  pub_msg.L_encoder = -knobLeft.read();
-//  pub_msg.R_encoder = knobRight.read();
-//  //pub_msg.servo_angle = servo_move(angle,curr_angle);
-//  pub_msg.servo_angle = servo_test;
-//  pub_msg.pressure = pressure ();
-//  arduino_pub.publish( &pub_msg );
-//  
-//  nh.spinOnce();
-////  delay(20); 
-int pos ;
-for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
-  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
+  pub_msg.sharp_ir = sharp();
+  pub_msg.L_encoder = -knobLeft.read();
+  pub_msg.R_encoder = knobRight.read();
+  pub_msg.servo_angle = servo_move(angle,curr_angle);
+  pub_msg.servo_angle = servo_test;
+  pub_msg.pressure = pressure ();
+  arduino_pub.publish( &pub_msg );
+  
+  nh.spinOnce();
+  delay(20); 
+//int pos ;
+//for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+//    // in steps of 1 degree
+//    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+//    delay(15);                       // waits 15ms for the servo to reach the position
+//  }
+//  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+//    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+//    delay(15);                       // waits 15ms for the servo to reach the position
+//  }
 
 }
 

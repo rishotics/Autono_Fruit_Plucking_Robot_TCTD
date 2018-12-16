@@ -28,16 +28,17 @@
 #define left_PWM 8
 #define right_PWM 9
 
-Servo myservo;  // create servo object to control a servo
+Servo myservo;
+Servo seed ;// create servo object to control a servo
 long int left_position;
 long int right_position;
 int angle , curr_angle; //// yeh wala bas check karne ke liye hain
-ros::NodeHandle nh;
-embedded_control::sensor_data pub_msg;
-
-
-
-ros::Publisher arduino_pub("/feedback_data", &pub_msg);
+//ros::NodeHandle nh;
+//embedded_control::sensor_data pub_msg;
+//
+//
+//
+//ros::Publisher arduino_pub("/feedback_data", &pub_msg);
 
 
 Encoder knobLeft(2, 7);
@@ -58,29 +59,34 @@ void setup()
   pinMode (Right_BRK,OUTPUT);
   
   
-  myservo.attach(servo_pin);  // attaches the servo on pin 9 to the servo object 
+  myservo.attach(servo_pin); 
+  seed.attach(servo_seeding);
+  seed.write(0);// attaches the servo on pin 9 to the servo object 
   Encoder knobLeft(L_encoder_1,L_encoder_2);     // initializing the left encoder intrrupt pins
   Encoder knobRight(R_encoder_1,R_encoder_2);  // initializing the right encoder interrupt pins
-
-  nh.initNode();
-  nh.advertise(arduino_pub);
-
-  
-}
-
-
-void joycallback( const geometry_msgs::Twist& vel)
-{
-  
-if(vel.angular.y==1)
-{
-  halt();
-  return;
-}
-    
+  analogWrite(left_PWM ,120);
+  analogWrite(right_PWM, 120);
+  digitalWrite(Left_DIR,LOW);
+  digitalWrite(Right_DIR,LOW);
+//  nh.initNode();                          // isse bot continously age badta rahega at pwmm 120
+//  nh.advertise(arduino_pub);
 
   
 }
+
+
+//void joycallback( const geometry_msgs::Twist& vel)
+//{
+//  
+//if(vel.angular.y==1)
+//{
+//  halt();
+//  return;
+//}
+//    
+
+  
+//}
 
 int pressure ()
 {
@@ -177,14 +183,24 @@ void motor_linear (int speed )
 
 void loop()
 {
-  pub_msg.sharp_ir = sharp();
-  pub_msg.L_encoder = left_position;
-  pub_msg.R_encoder = right_position;
-  pub_msg.servo_angle = servo_move(angle,curr_angle);
-  pub_msg.pressure = pressure ();
-  arduino_pub.publish( &pub_msg );
-  
-  nh.spinOnce();
-  delay(50); 
+//  pub_msg.sharp_ir = sharp();
+//  pub_msg.L_encoder = left_position;
+//  pub_msg.R_encoder = right_position;
+//  pub_msg.servo_angle = servo_move(angle,curr_angle);
+//  pub_msg.pressure = pressure ();
+//  arduino_pub.publish( &pub_msg );
+//  
+//  nh.spinOnce();
+//  delay(50); 
+int pos;
+for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    seed.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    seed.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
 }
 
